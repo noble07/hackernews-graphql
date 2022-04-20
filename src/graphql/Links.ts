@@ -59,14 +59,17 @@ export const LinkMutation = extendType({ // 1: You’re extending the Mutation t
         description: nonNull(stringArg()),
         url: nonNull(stringArg())
       },
-      resolve(_, args, { prisma }) {
+      resolve(_, args, { prisma, userId }) {
         const { description, url } = args // 4: You’re now using the second argument that’s passed into all resolver functions: args. Any guesses what it’s used for? … Correct! 
         //💡 It carries the arguments for the operation – in this case the url and description of the link to be created.
         
+        if (!userId) throw new Error('Cannot post without logging in.')
+
         const newLink = prisma.link.create({
           data: {
             description,
-            url
+            url,
+            postedBy: { connect: { id: userId } }
           }
         })
 
