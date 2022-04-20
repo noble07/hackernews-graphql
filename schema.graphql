@@ -5,6 +5,7 @@
 type Link {
   description: String!
   id: Int!
+  postedBy: User
   url: String!
 }
 
@@ -24,4 +25,11 @@ type Query {
 
   """Fetch a single link by its `id`"""
   link(id: ID!): Link
+}
+
+type User {
+  email: String!
+  id: Int!
+  links: [Link!]!
+  name: String!
 }
