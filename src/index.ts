@@ -1,4 +1,5 @@
 import { ApolloServer } from 'apollo-server'
+import 'dotenv/config'
 import { context } from './context'
 
 // 1. The schema object you created using Nexus defines your GraphQL schema. 
