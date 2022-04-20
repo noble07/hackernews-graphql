@@ -2,6 +2,26 @@
 ### Do not make changes to this file directly
 
 
+type Link {
+  description: String!
+  id: Int!
+  url: String!
+}
+
+type Mutation {
+  """Delete a link"""
+  deleteLink(id: ID!): Link!
+
+  """Update a link"""
+  post(description: String!, url: String!): Link!
+
+  """Update a link"""
+  updateLink(description: String, id: ID!, url: String): Link!
+}
+
 type Query {
-  ok: Boolean!
+  feed: [Link!]!
+
+  """Fetch a single link by its `id`"""
+  link(id: ID!): Link
 }
