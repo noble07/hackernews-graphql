@@ -1,10 +1,12 @@
 import { ApolloServer } from 'apollo-server'
+import { context } from './context'
 
 // 1. The schema object you created using Nexus defines your GraphQL schema. 
 // You need to provide this when instantiating your server since that’s how Apollo Server knows which API operations to support in the GraphQL API.
 import { schema } from './schema'
 export const server = new ApolloServer({
-  schema
+  schema,
+  context
 })
 
 const port = 3000
