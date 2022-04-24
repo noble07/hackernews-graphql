@@ -1,4 +1,4 @@
-import { extendType, idArg, nonNull, objectType, stringArg } from 'nexus'
+import { extendType, idArg, intArg, nonNull, objectType, stringArg } from 'nexus'
 
 export const Link = objectType({
   name: 'Link', // 1. The name option defines the name of the type
@@ -33,9 +33,11 @@ export const LinkQuery = extendType({ // 2. You are extending the Query root typ
       // Every field on each type (including the root types) has a resolver function which is executed to get the return value when fetching that type. For now, our resolver implementation is very simple, it just returns the links array.
       // The resolve function has four arguments, parent, args, context and info. We will get to these later.
       args: {
-        filter: stringArg()
+        filter: stringArg(),
+        skip: intArg(),
+        take: intArg()
       },
-      resolve(_, { filter }, { prisma }) {
+      resolve(_, { filter, skip, take }, { prisma }) {
         const where = filter
           ? {
             OR: [
@@ -45,7 +47,11 @@ export const LinkQuery = extendType({ // 2. You are extending the Query root typ
           }
           : {}
 
-        return prisma.link.findMany({ where })
+        return prisma.link.findMany({ 
+          where,
+          skip: skip as number | undefined,
+          take: take as number | undefined
+        })
       }
     })
     t.field('link', {
