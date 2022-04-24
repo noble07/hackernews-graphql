@@ -1,4 +1,28 @@
-import { extendType, idArg, intArg, nonNull, objectType, stringArg } from 'nexus'
+import { arg, enumType, extendType, idArg, inputObjectType, intArg, list, nonNull, objectType, stringArg } from 'nexus'
+import { Prisma } from '@prisma/client'
+
+export const Feed = objectType({
+  name: 'Feed',
+  definition(t) {
+    t.nonNull.list.nonNull.field('links', { type: Link })
+    t.nonNull.int('count')
+    t.id('id')
+  }
+})
+
+export const LinkOrderByInput = inputObjectType({
+  name: 'LinkOrderByInput',
+  definition(t) {
+    t.field('description', { type: Sort })
+    t.field('url', { type: Sort })
+    t.field('createdAt', { type: Sort })
+  }
+})
+
+export const Sort = enumType({
+  name: 'Sort',
+  members: ['asc', 'desc']
+})
 
 export const Link = objectType({
   name: 'Link', // 1. The name option defines the name of the type
@@ -27,31 +51,45 @@ export const Link = objectType({
 export const LinkQuery = extendType({ // 2. You are extending the Query root type and adding a new root field to it called feed.
   type: 'Query',
   definition(t) {
-    t.nonNull.list.nonNull.field('feed', { // 3. You define the return type of the feed query as a not nullable array of link type objects (In the SDL the return type will look like this: [Link!]!).
-      type: 'Link',
+    t.nonNull.field('feed', { // 3. You define the return type of the feed query as a not nullable array of link type objects (In the SDL the return type will look like this: [Link!]!).
+      type: 'Feed',
       // 4. resolve is the name of the resolver function of the feed query. A resolver is the implementation for a GraphQL field.
       // Every field on each type (including the root types) has a resolver function which is executed to get the return value when fetching that type. For now, our resolver implementation is very simple, it just returns the links array.
       // The resolve function has four arguments, parent, args, context and info. We will get to these later.
       args: {
         filter: stringArg(),
         skip: intArg(),
-        take: intArg()
+        take: intArg(),
+        orderBy: arg({ type: list(nonNull(LinkOrderByInput)) })
       },
-      resolve(_, { filter, skip, take }, { prisma }) {
-        const where = filter
+      async resolve(_, args, { prisma }) {
+        const where = args.filter
           ? {
             OR: [
-              { description: { contains: filter } },
-              { url: { contains: filter } }
+              { description: { contains: args.filter } },
+              { url: { contains: args.filter } }
             ]
           }
           : {}
 
-        return prisma.link.findMany({ 
+        const links = await prisma.link.findMany({ 
           where,
-          skip: skip as number | undefined,
-          take: take as number | undefined
+          skip: args?.skip as number | undefined,
+          take: args?.take as number | undefined,
+          orderBy: args?.orderBy as
+            | Prisma.Enumerable<Prisma.LinkOrderByWithRelationInput>
+            | undefined
         })
+
+        const count = await prisma.link.count({ where })
+        const id = `main-feed:${JSON.stringify(args)}`
+
+        return {
+          links,
+          count,
+          id
+        }
+        
       }
     })
     t.field('link', {
