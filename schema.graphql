@@ -36,7 +36,7 @@ type Mutation {
 }
 
 type Query {
-  feed: [Link!]!
+  feed(filter: String): [Link!]!
 
   """Fetch a single link by its `id`"""
   link(id: ID!): Link
