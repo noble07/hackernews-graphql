@@ -1,5 +1,4 @@
 import { extendType, idArg, nonNull, objectType, stringArg } from 'nexus'
-import { NexusGenObjects } from '../../nexus-typegen'
 
 export const Link = objectType({
   name: 'Link', // 1. The name option defines the name of the type
@@ -7,6 +6,7 @@ export const Link = objectType({
     t.nonNull.int('id'), // 3. This adds a field named id of type Int
     t.nonNull.string('description'), // 4. This adds a field named description of type String
     t.nonNull.string('url') // 5. This adds a field named url of type String
+    t.nonNull.dateTime('createdAt')
     t.field('postedBy', {
       type: 'User',
       resolve({ id }, _, { prisma }) {
