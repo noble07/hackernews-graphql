@@ -9,10 +9,16 @@ export const Link = objectType({
     t.nonNull.string('url') // 5. This adds a field named url of type String
     t.field('postedBy', {
       type: 'User',
-      resolve({ id }, args, { prisma }) {
+      resolve({ id }, _, { prisma }) {
         return prisma.link
           .findUnique({ where: { id } })
           .postedBy()
+      }
+    })
+    t.nonNull.list.field('voter', {
+      type: 'User',
+      resolve({ id }, _, { prisma }) {
+        return prisma.link.findUnique({ where: { id } }).voters()
       }
     })
   }
